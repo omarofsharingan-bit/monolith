@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- The monolith mark: a bone slab with the vault seam cut through it. -->
+  <rect width="32" height="32" fill="#0A0A0A"/>
+  <rect x="4" y="4" width="24" height="24" fill="#F5F5F5"/>
+  <rect x="14.5" y="10" width="3" height="12" fill="#0A0A0A"/>
+</svg>
