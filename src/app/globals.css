@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html,
+  body {
+    background-color: #0a0a0a;
+    color: #f5f5f5;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: #ffb000;
+    color: #0a0a0a;
+  }
+
+  /* Sharp, high-contrast focus. No glow, no radius. */
+  :focus-visible {
+    outline: 2px solid #ffb000;
+    outline-offset: 0;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0a0a0a;
+    border-inline-start: 1px solid #242424;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #242424;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3a3a3a;
+  }
+}
+
+@layer components {
+  /*
+   * Numerals are always western (0-9) and always LTR-isolated, even inside
+   * Arabic prose, so "5,000 ريال" never reorders or reshapes.
+   */
+  .num {
+    direction: ltr;
+    unicode-bidi: isolate;
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+  }
+
+  /* System/status text: Latin monospace, uppercase, wide. Terminal contrast. */
+  .sys {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  /* Hairline separator that respects writing direction. */
+  .rule-b {
+    border-block-end: 1px solid #242424;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

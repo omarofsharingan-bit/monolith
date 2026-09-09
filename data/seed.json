@@ -1,0 +1,434 @@
+{
+  "vault": {
+    "name": "نادي الابتكار وريادة الأعمال",
+    "org": "جامعة الملك سعود — كلية علوم الحاسب والمعلومات",
+    "total_funds": 4160
+  },
+  "users": [
+    {
+      "email": "treasurer@monolith.demo",
+      "password": "monolith2026",
+      "display_name": "نورة العتيبي",
+      "role": "treasurer"
+    },
+    {
+      "email": "founder@monolith.demo",
+      "password": "monolith2026",
+      "display_name": "عبدالرحمن القحطاني",
+      "role": "founder"
+    },
+    {
+      "email": "member@monolith.demo",
+      "password": "monolith2026",
+      "display_name": "ريم الدوسري",
+      "role": "member"
+    }
+  ],
+  "stakeholders": [
+    {
+      "name": "عبدالرحمن القحطاني",
+      "role": "مؤسس ورئيس النادي",
+      "split_percentage": 35
+    },
+    {
+      "name": "نورة العتيبي",
+      "role": "أمينة الصندوق",
+      "split_percentage": 25
+    },
+    {
+      "name": "ريم الدوسري",
+      "role": "قائدة فريق التقنية",
+      "split_percentage": 20
+    },
+    {
+      "name": "صندوق تشغيل الفعاليات",
+      "role": "مخصص تشغيلي",
+      "split_percentage": 15
+    },
+    {
+      "name": "احتياطي الطوارئ",
+      "role": "مخصص احتياطي",
+      "split_percentage": 5
+    }
+  ],
+  "audit": [
+    {
+      "actor": "عبدالرحمن القحطاني",
+      "action": "created",
+      "change_description": "تأسيس بيان الحصص الأولي بأربعة أصحاب حصص",
+      "offset_days": 214
+    },
+    {
+      "actor": "نورة العتيبي",
+      "action": "updated",
+      "change_description": "تعديل نسبة «عبدالرحمن القحطاني»",
+      "field": "split_percentage",
+      "old_value": "40",
+      "new_value": "35",
+      "offset_days": 96
+    },
+    {
+      "actor": "نورة العتيبي",
+      "action": "created",
+      "change_description": "إضافة «احتياطي الطوارئ» كمخصص احتياطي",
+      "new_value": "5",
+      "offset_days": 96
+    },
+    {
+      "actor": "عبدالرحمن القحطاني",
+      "action": "updated",
+      "change_description": "تعديل نسبة «ريم الدوسري»",
+      "field": "split_percentage",
+      "old_value": "15",
+      "new_value": "20",
+      "offset_days": 41
+    },
+    {
+      "actor": "نورة العتيبي",
+      "action": "distributed",
+      "change_description": "توزيع مخصصات الفرق لشهر أغسطس بحسب النسب المتفق عليها",
+      "new_value": "1200",
+      "offset_days": 23
+    }
+  ],
+  "disbursements": [
+    {
+      "amount": 1200,
+      "note": "توزيع مخصصات الفرق لشهر أغسطس بحسب النسب المتفق عليها",
+      "offset_days": 23,
+      "actor": "نورة العتيبي"
+    },
+    {
+      "amount": 800,
+      "note": "توزيع مخصصات معسكر ريادة الأعمال الصيفي",
+      "offset_days": 78,
+      "actor": "عبدالرحمن القحطاني"
+    }
+  ],
+  "transactions": [
+    {
+      "reference": "TX-2602-0001",
+      "type": "inflow",
+      "amount": 2400,
+      "description": "رصيد مُرحَّل من الفصل الدراسي السابق",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-02-03T09:00:00.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2602-0002",
+      "type": "inflow",
+      "amount": 6000,
+      "description": "المخصص السنوي — عمادة شؤون الطلاب",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-02-08T10:17:29.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2602-0003",
+      "type": "outflow",
+      "amount": 620,
+      "description": "ضيافة حفل افتتاح الفصل — قهوة ومعجنات",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-02-12T11:34:58.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2602-0004",
+      "type": "inflow",
+      "amount": 400,
+      "description": "اشتراكات الأعضاء — الفصل الثاني (16 عضوًا × 25)",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-02-17T13:51:27.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2602-0005",
+      "type": "outflow",
+      "amount": 380,
+      "description": "طباعة بوسترات ولوحة تعريفية للنادي",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-02-21T14:08:56.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2602-0006",
+      "type": "outflow",
+      "amount": 95,
+      "description": "ضيافة اجتماع اللجنة التنفيذية",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-02-26T15:25:25.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2603-0007",
+      "type": "outflow",
+      "amount": 1250,
+      "description": "وجبات وضيافة هاكاثون الربيع",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-03-04T16:42:54.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2603-0008",
+      "type": "inflow",
+      "amount": 75,
+      "description": "اشتراكات متأخرة — 3 أعضاء",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-03-09T19:59:23.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2603-0009",
+      "type": "outflow",
+      "amount": 700,
+      "description": "بطاقات هدايا لجوائز المراكز الثلاثة",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-03-14T09:16:52.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2603-0010",
+      "type": "outflow",
+      "amount": 215,
+      "description": "طباعة شهادات مشاركة ودروع تكريم",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-03-20T10:33:21.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2603-0011",
+      "type": "outflow",
+      "amount": 115,
+      "description": "بادجات وأقلام ومستلزمات تنظيم",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-03-27T11:50:50.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2604-0012",
+      "type": "outflow",
+      "amount": 900,
+      "description": "مكافأة مدرب ورشة نموذج العمل التجاري",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-04-02T13:07:19.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2604-0013",
+      "type": "inflow",
+      "amount": 1500,
+      "description": "رعاية — مقهى الحي الجامعي",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-04-07T14:24:48.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2604-0014",
+      "type": "outflow",
+      "amount": 480,
+      "description": "اشتراك سنوي في أداة تصميم",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-04-11T15:41:17.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2604-0015",
+      "type": "inflow",
+      "amount": 50,
+      "description": "اشتراكات متأخرة — عضوان",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-04-15T16:58:46.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2604-0016",
+      "type": "outflow",
+      "amount": 560,
+      "description": "ضيافة الورش الأسبوعية (4 لقاءات)",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-04-19T19:15:15.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2604-0017",
+      "type": "outflow",
+      "amount": 200,
+      "description": "نقل معدات العرض داخل الحرم",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-04-28T09:32:44.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2605-0018",
+      "type": "outflow",
+      "amount": 1400,
+      "description": "تجهيز جناح النادي في معرض المشاريع الطلابية",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-05-05T10:49:13.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2605-0019",
+      "type": "outflow",
+      "amount": 450,
+      "description": "ضيافة المتحدثين الضيوف",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-05-16T11:06:42.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2605-0020",
+      "type": "outflow",
+      "amount": 420,
+      "description": "تجديد نطاق الموقع والاستضافة",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-05-22T13:23:11.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2605-0021",
+      "type": "outflow",
+      "amount": 190,
+      "description": "قرطاسية ومستلزمات مكتبية",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-05-29T14:40:40.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2606-0022",
+      "type": "inflow",
+      "amount": 2000,
+      "description": "منحة دعم فعالية — عمادة شؤون الطلاب",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-06-03T15:57:09.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2606-0023",
+      "type": "outflow",
+      "amount": 1100,
+      "description": "معسكر ريادة الأعمال الصيفي — ضيافة وقاعة",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-06-08T16:14:38.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2606-0024",
+      "type": "outflow",
+      "amount": 220,
+      "description": "اشتراك أداة إدارة المهام",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-06-24T19:31:07.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2606-0025",
+      "type": "outflow",
+      "amount": 170,
+      "description": "ضيافة حفل ختام الفصل",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-06-30T09:48:36.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2607-0026",
+      "type": "outflow",
+      "amount": 420,
+      "description": "تحديث صفحة النادي التعريفية",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-07-06T10:05:05.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2607-0027",
+      "type": "outflow",
+      "amount": 290,
+      "description": "ملحقات وأسلاك لمختبر النادي",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-07-23T11:22:34.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2607-0028",
+      "type": "outflow",
+      "amount": 140,
+      "description": "صيانة مكبر صوت",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-07-29T13:39:03.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2608-0029",
+      "type": "outflow",
+      "amount": 380,
+      "description": "تجهيز مواد الترويج للفصل الجديد",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-08-04T14:56:32.000Z",
+      "sync_status": "VERIFIED"
+    },
+    {
+      "reference": "TX-2608-0030",
+      "type": "outflow",
+      "amount": 180,
+      "description": "اشتراك خدمة استضافة سحابية",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-08-22T15:13:01.000Z",
+      "sync_status": "SYNCED"
+    },
+    {
+      "reference": "TX-2608-0031",
+      "type": "outflow",
+      "amount": 100,
+      "description": "ضيافة اجتماع اللجنة التحضيرية",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-08-27T16:30:30.000Z",
+      "sync_status": "SYNCED"
+    },
+    {
+      "reference": "TX-2609-0032",
+      "type": "outflow",
+      "amount": 320,
+      "description": "رسوم تجديد تسجيل النادي",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-09-01T10:47:59.000Z",
+      "sync_status": "SYNCED"
+    },
+    {
+      "reference": "TX-2609-0033",
+      "type": "inflow",
+      "amount": 2800,
+      "description": "مخصص الفصل الأول — عمادة شؤون الطلاب",
+      "account": "SA4420000001234567894417",
+      "timestamp": "2026-09-03T07:04:28.000Z",
+      "sync_status": "SYNCED"
+    },
+    {
+      "reference": "TX-2609-0034",
+      "type": "inflow",
+      "amount": 550,
+      "description": "اشتراكات الأعضاء — الفصل الأول (22 عضوًا × 25)",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-09-05T08:21:57.000Z",
+      "sync_status": "SYNCED"
+    },
+    {
+      "reference": "TX-2609-0035",
+      "type": "outflow",
+      "amount": 210,
+      "description": "تجهيز ركن النادي في أسبوع التهيئة",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-09-07T09:38:26.000Z",
+      "sync_status": "PENDING"
+    },
+    {
+      "reference": "TX-2609-0036",
+      "type": "outflow",
+      "amount": 110,
+      "description": "ضيافة اللقاء التعريفي للأعضاء الجدد",
+      "account": "SA0380000000608010167519",
+      "timestamp": "2026-09-09T10:55:55.000Z",
+      "sync_status": "PENDING"
+    }
+  ]
+}

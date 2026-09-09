@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: monolith
+    runtime: node
+    plan: free
+    region: frankfurt
+    # better-sqlite3 ships prebuilt binaries; `npm ci` picks the right one for
+    # the Node version pinned below.
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /login
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20.18.0"
+      - key: AUTH_SECRET
+        # Render generates this once and keeps it across deploys. Rotating it
+        # invalidates every active session, which is fine for a demo.
+        generateValue: true
+      - key: AUTH_TRUST_HOST
+        value: "true"
+      - key: DATABASE_PATH
+        # Deliberately ephemeral: the container filesystem is wiped on every
+        # deploy and restart, and the app reseeds from data/seed.json on boot.
+        # To make the vault durable instead, switch to a paid instance type and
+        # attach a disk (see the commented block below).
+        value: /tmp/monolith.db
+
+    # --- Durable alternative -------------------------------------------------
+    # Free instances cannot mount disks. On a paid plan, delete the
+    # DATABASE_PATH entry above and uncomment this block; the seed then runs
+    # only on the very first boot and user changes survive redeploys.
+    #
+    # disk:
+    #   name: monolith-data
+    #   mountPath: /data
+    #   sizeGB: 1
+    # envVars:
+    #   - key: DATABASE_PATH
+    #     value: /data/monolith.db
