@@ -10,6 +10,7 @@ const TABS = [
   { href: "/ledger", label: dict.nav.ledger, sys: "EQUITY" },
   { href: "/bank", label: dict.nav.bank, sys: "SYNC" },
   { href: "/burn", label: dict.nav.burn, sys: "BURN" },
+  { href: "/import", label: dict.nav.import, sys: "IMPORT" },
 ] as const;
 
 export function NavTabs() {

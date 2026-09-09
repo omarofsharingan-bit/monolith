@@ -299,6 +299,67 @@ export function insertTransaction(tx: {
 }
 
 /**
+ * How many simulator-generated rows may exist at once.
+ *
+ * The feed polls every 7s and inserts on roughly half of those, so with no
+ * ceiling a tab left open for an hour buries the seeded history under hundreds
+ * of synthetic rows and drags the balance with it. Past the cap the oldest
+ * simulated row is dropped as a new one lands: the feed stays live, but bounded.
+ */
+export const MAX_SIMULATED = 15;
+
+/** Simulated rows carry their own prefix so they can be counted and recycled. */
+export function simulatedReference(): string {
+  const now = new Date();
+  const stamp = `${String(now.getFullYear()).slice(2)}${String(now.getMonth() + 1).padStart(2, "0")}`;
+  return `SIM-${stamp}-${String(now.getTime() % 100000).padStart(5, "0")}`;
+}
+
+export function insertSimulatedTransaction(tx: {
+  type: TxType;
+  amount: number;
+  description: string;
+  account: string;
+}): void {
+  const db = getDb();
+
+  db.transaction(() => {
+    const existing = (
+      db
+        .prepare(
+          "SELECT COUNT(*) AS n FROM transactions WHERE vault_id = ? AND reference LIKE 'SIM-%'",
+        )
+        .get(VAULT_ID) as { n: number }
+    ).n;
+
+    if (existing >= MAX_SIMULATED) {
+      db.prepare(
+        `DELETE FROM transactions
+          WHERE id IN (
+            SELECT id FROM transactions
+             WHERE vault_id = ? AND reference LIKE 'SIM-%'
+             ORDER BY timestamp ASC, id ASC
+             LIMIT ?
+          )`,
+      ).run(VAULT_ID, existing - MAX_SIMULATED + 1);
+    }
+
+    db.prepare(
+      `INSERT INTO transactions (vault_id, reference, type, amount, description, account, timestamp, sync_status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDING')`,
+    ).run(
+      VAULT_ID,
+      simulatedReference(),
+      tx.type,
+      tx.amount,
+      tx.description,
+      tx.account,
+      new Date().toISOString(),
+    );
+  })();
+}
+
+/**
  * Advance the mock reconciliation pipeline one step: PENDING → SYNCED → VERIFIED.
  *
  * The SYNCED → VERIFIED hop runs *first*. Run the other way round and a row
@@ -337,6 +398,72 @@ export function countByStatus(): Record<SyncStatus, number> {
   const out: Record<SyncStatus, number> = { SYNCED: 0, PENDING: 0, VERIFIED: 0, FLAGGED: 0 };
   for (const r of rows) out[r.status] = r.n;
   return out;
+}
+
+/**
+ * Bulk-insert imported transactions, optionally clearing what is already there.
+ *
+ * One transaction around the whole thing: a half-applied import would leave the
+ * balance wrong with no obvious sign of why.
+ */
+export function importTransactions(
+  rows: Array<{
+    type: TxType;
+    amount: number;
+    description: string;
+    account: string;
+    timestamp: string;
+  }>,
+  options: { replace: boolean; actor: string; note: string },
+): { inserted: number; removed: number; total: number } {
+  const db = getDb();
+
+  return db.transaction(() => {
+    let removed = 0;
+    if (options.replace) {
+      removed = db.prepare("DELETE FROM transactions WHERE vault_id = ?").run(VAULT_ID).changes;
+    }
+
+    const existing = (
+      db.prepare("SELECT COUNT(*) AS n FROM transactions WHERE vault_id = ?").get(VAULT_ID) as {
+        n: number;
+      }
+    ).n;
+
+    const insert = db.prepare(
+      `INSERT INTO transactions (vault_id, reference, type, amount, description, account, timestamp, sync_status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    );
+
+    rows.forEach((row, i) => {
+      const stamp = row.timestamp.slice(2, 4) + row.timestamp.slice(5, 7);
+      insert.run(
+        VAULT_ID,
+        `IM-${stamp}-${String(existing + i + 1).padStart(4, "0")}`,
+        row.type,
+        row.amount,
+        row.description,
+        row.account,
+        row.timestamp,
+        // Imported statement lines are already settled at the bank.
+        "VERIFIED",
+      );
+    });
+
+    writeAudit({
+      actor: options.actor,
+      action: "created",
+      change_description: options.note,
+      field: "transactions",
+      old_value: String(removed),
+      new_value: String(rows.length),
+    });
+
+    const total = netOf(listTransactions());
+    db.prepare("UPDATE vaults SET total_funds = ? WHERE id = ?").run(total, VAULT_ID);
+
+    return { inserted: rows.length, removed, total };
+  })();
 }
 
 /** Recompute the headline balance from the ledger. Cheap, and always correct. */

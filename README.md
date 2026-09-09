@@ -78,10 +78,24 @@ be sanity-checked before committing.
 
 | Route     | What it is                                                                     |
 | --------- | ------------------------------------------------------------------------------ |
-| `/`       | **Vault door** — balance, split integrity, net month, runway, plus summaries of all four subsystems |
+| `/`       | **Vault door** — balance, split integrity, net month, runway, plus summaries of all four subsystems. Opens with a four-step start guide |
 | `/ledger` | **Equity ledger** — stakeholder CRUD, split validation, disbursement, audit chain |
 | `/bank`   | **Simulated bank sync** — mock transaction feed with a live polling pipeline    |
 | `/burn`   | **Burn rate** — balance history against a linear trend projection              |
+| `/import` | **Data import** — replace the demo data with real transactions from a CSV or JSON file |
+
+### Telling people what to do
+
+Two pieces of in-app orientation, because a vault full of someone else's demo data
+explains nothing on its own:
+
+- **`دليل البدء` on the dashboard** — four numbered steps (set the split → import your
+  transactions → watch the burn → distribute), each linking to the screen it describes.
+  Dismissible, remembered in `localStorage`, and rendered open on the server so it is
+  still there for anyone with storage blocked.
+- **`من أين تأتي البيانات؟` on the import page** — names all three data sources
+  explicitly: the preloaded demo seed, the simulated bank feed, and manual import. Nobody
+  should have to guess which numbers on screen are real.
 
 ---
 
@@ -173,6 +187,30 @@ time. The client polls every 7s, with pause/resume and a manual sync. Newly land
 are flagged on the reading edge for 45 seconds.
 
 No copy anywhere implies a live connection to SAMA, any bank, or any aggregator.
+
+The generated rows are **capped at 15** (`MAX_SIMULATED` in `src/lib/repo.ts`) and carry
+a `SIM-` reference prefix. Past the cap the oldest simulated row is dropped as a new one
+lands. Without that ceiling a tab left open buries the seeded history — an early build
+accumulated 130 synthetic rows during testing and pulled the balance with it.
+
+### 5. Data import
+
+`/import` is the only way real data enters the vault. It accepts a CSV or JSON file, or
+pasted text, and requires `type`, `amount` and `description` columns (`account` and
+`timestamp` are optional). The format is documented on the page with a downloadable
+template — served with a UTF-8 BOM so Excel opens Arabic descriptions correctly instead
+of mojibake.
+
+Parsing and validation live in `src/lib/import.ts`, which is pure: the browser runs it to
+build the preview and the server runs the identical function before writing, so the rows
+the user approved are the rows that land. Every row is validated individually and bad
+ones are listed with their line number and the reason, rather than failing the whole
+file. Imported rows enter as `VERIFIED` (a statement line is already settled), the whole
+insert runs in one transaction, and it writes its own audit entry.
+
+The confirmation is carried in the URL (`/import?imported=3`) rather than in form state,
+because the action revalidates other routes and that remounts this route's client tree —
+anything held in `useFormState` would be gone before it rendered.
 
 ### 4. Burn rate forecast
 

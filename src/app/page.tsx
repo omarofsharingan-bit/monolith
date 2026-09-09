@@ -8,6 +8,7 @@ import { DataRow, Stat, EmptyState } from "@/components/ui/DataRow";
 import { StatusPill } from "@/components/ui/StatusPill";
 import { ShareBar, segmentColor } from "@/components/ui/ShareBar";
 import { AuditList } from "@/components/AuditList";
+import { StartGuide } from "@/components/StartGuide";
 import { BurnChart, BurnLegend, type BurnPoint } from "@/components/BurnChart";
 import {
   getVault,
@@ -77,6 +78,8 @@ export default async function DashboardPage() {
       userName={session?.user?.name ?? dict.common.you}
       userRole={ROLE_LABEL[session?.user?.role ?? "member"]}
     >
+      <StartGuide />
+
       {/* ------------------------------------------------------------------ */}
       {/* The vault door: one heavy slab carrying the single most important   */}
       {/* number in the product, with the integrity checks bolted underneath. */}

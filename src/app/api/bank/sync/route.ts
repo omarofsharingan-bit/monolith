@@ -3,9 +3,8 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import {
   countByStatus,
-  insertTransaction,
+  insertSimulatedTransaction,
   listAccounts,
-  nextReference,
   promoteSyncStatuses,
   recomputeTotalFunds,
 } from "@/lib/repo";
@@ -73,14 +72,11 @@ export async function POST() {
       candidate.step ?? 5,
     );
 
-    insertTransaction({
-      reference: nextReference(),
+    insertSimulatedTransaction({
       type: candidate.type,
       amount,
       description: candidate.description,
       account: accounts.length ? pick(accounts) : "SA4420000001234567894417",
-      timestamp: new Date().toISOString(),
-      sync_status: "PENDING",
     });
     inserted = 1;
   }
