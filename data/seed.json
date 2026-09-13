@@ -8,36 +8,36 @@
     {
       "email": "treasurer@monolith.demo",
       "password": "monolith2026",
-      "display_name": "نورة العتيبي",
+      "display_name": "عمر الشهراني",
       "role": "treasurer"
     },
     {
       "email": "founder@monolith.demo",
       "password": "monolith2026",
-      "display_name": "عبدالرحمن القحطاني",
+      "display_name": "مستور الشهراني",
       "role": "founder"
     },
     {
       "email": "member@monolith.demo",
       "password": "monolith2026",
-      "display_name": "ريم الدوسري",
+      "display_name": "عوض العمري",
       "role": "member"
     }
   ],
   "stakeholders": [
     {
-      "name": "عبدالرحمن القحطاني",
+      "name": "مستور الشهراني",
       "role": "مؤسس ورئيس النادي",
       "split_percentage": 35
     },
     {
-      "name": "نورة العتيبي",
-      "role": "أمينة الصندوق",
+      "name": "عمر الشهراني",
+      "role": "أمين الصندوق",
       "split_percentage": 25
     },
     {
-      "name": "ريم الدوسري",
-      "role": "قائدة فريق التقنية",
+      "name": "عوض العمري",
+      "role": "قائد فريق التقنية",
       "split_percentage": 20
     },
     {
@@ -53,38 +53,38 @@
   ],
   "audit": [
     {
-      "actor": "عبدالرحمن القحطاني",
+      "actor": "مستور الشهراني",
       "action": "created",
       "change_description": "تأسيس بيان الحصص الأولي بأربعة أصحاب حصص",
       "offset_days": 214
     },
     {
-      "actor": "نورة العتيبي",
+      "actor": "عمر الشهراني",
       "action": "updated",
-      "change_description": "تعديل نسبة «عبدالرحمن القحطاني»",
+      "change_description": "تعديل نسبة «مستور الشهراني»",
       "field": "split_percentage",
       "old_value": "40",
       "new_value": "35",
       "offset_days": 96
     },
     {
-      "actor": "نورة العتيبي",
+      "actor": "عمر الشهراني",
       "action": "created",
       "change_description": "إضافة «احتياطي الطوارئ» كمخصص احتياطي",
       "new_value": "5",
       "offset_days": 96
     },
     {
-      "actor": "عبدالرحمن القحطاني",
+      "actor": "مستور الشهراني",
       "action": "updated",
-      "change_description": "تعديل نسبة «ريم الدوسري»",
+      "change_description": "تعديل نسبة «عوض العمري»",
       "field": "split_percentage",
       "old_value": "15",
       "new_value": "20",
       "offset_days": 41
     },
     {
-      "actor": "نورة العتيبي",
+      "actor": "عمر الشهراني",
       "action": "distributed",
       "change_description": "توزيع مخصصات الفرق لشهر أغسطس بحسب النسب المتفق عليها",
       "new_value": "1200",
@@ -96,13 +96,13 @@
       "amount": 1200,
       "note": "توزيع مخصصات الفرق لشهر أغسطس بحسب النسب المتفق عليها",
       "offset_days": 23,
-      "actor": "نورة العتيبي"
+      "actor": "عمر الشهراني"
     },
     {
       "amount": 800,
       "note": "توزيع مخصصات معسكر ريادة الأعمال الصيفي",
       "offset_days": 78,
-      "actor": "عبدالرحمن القحطاني"
+      "actor": "مستور الشهراني"
     }
   ],
   "transactions": [

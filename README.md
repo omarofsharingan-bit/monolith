@@ -50,9 +50,9 @@ All three share the password `monolith2026`:
 
 | Email                      | Name                | Role                  |
 | -------------------------- | ------------------- | --------------------- |
-| `treasurer@monolith.demo`  | نورة العتيبي        | أمين الصندوق          |
-| `founder@monolith.demo`    | عبدالرحمن القحطاني  | مؤسس                  |
-| `member@monolith.demo`     | ريم الدوسري         | عضو                   |
+| `treasurer@monolith.demo`  | عمر الشهراني        | أمين الصندوق          |
+| `founder@monolith.demo`    | مستور الشهراني  | مؤسس                  |
+| `member@monolith.demo`     | عوض العمري         | عضو                   |
 
 The login screen lists them; clicking one fills the form.
 
