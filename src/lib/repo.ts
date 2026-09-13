@@ -421,7 +421,19 @@ export function importTransactions(
   return db.transaction(() => {
     let removed = 0;
     if (options.replace) {
-      removed = db.prepare("DELETE FROM transactions WHERE vault_id = ?").run(VAULT_ID).changes;
+      // Transactions carrying a receipt are kept. Wiping them would take the
+      // evidence with them via the cascade, and silently destroying a document
+      // someone filed is not something an import checkbox should be able to do.
+      removed = db
+        .prepare(
+          `DELETE FROM transactions
+            WHERE vault_id = ?
+              AND id NOT IN (
+                SELECT transaction_id FROM attachments
+                 WHERE vault_id = ? AND transaction_id IS NOT NULL
+              )`,
+        )
+        .run(VAULT_ID, VAULT_ID).changes;
     }
 
     const existing = (
@@ -463,6 +475,175 @@ export function importTransactions(
     db.prepare("UPDATE vaults SET total_funds = ? WHERE id = ?").run(total, VAULT_ID);
 
     return { inserted: rows.length, removed, total };
+  })();
+}
+
+// ---------------------------------------------------------------------------
+// Receipt attachments
+// ---------------------------------------------------------------------------
+
+export type AttachmentMeta = {
+  id: number;
+  transaction_id: number | null;
+  filename: string;
+  mime: string;
+  byte_size: number;
+  sha256: string;
+  uploaded_by: string;
+  uploaded_at: string;
+};
+
+/** Uploads that were never confirmed are dropped after this long. */
+const PENDING_ATTACHMENT_TTL_MS = 60 * 60 * 1000;
+
+export function prunePendingAttachments(): number {
+  const cutoff = new Date(Date.now() - PENDING_ATTACHMENT_TTL_MS).toISOString();
+  return getDb()
+    .prepare(
+      "DELETE FROM attachments WHERE vault_id = ? AND transaction_id IS NULL AND uploaded_at < ?",
+    )
+    .run(VAULT_ID, cutoff).changes;
+}
+
+/** Stores an uploaded receipt unlinked; confirming the import attaches it. */
+export function storePendingAttachment(file: {
+  filename: string;
+  mime: string;
+  bytes: Buffer;
+  sha256: string;
+  extractedText: string | null;
+  uploadedBy: string;
+}): number {
+  prunePendingAttachments();
+
+  return Number(
+    getDb()
+      .prepare(
+        `INSERT INTO attachments
+           (vault_id, transaction_id, filename, mime, byte_size, sha256, content, extracted_text, uploaded_by, uploaded_at)
+         VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .run(
+        VAULT_ID,
+        file.filename,
+        file.mime,
+        file.bytes.byteLength,
+        file.sha256,
+        file.bytes,
+        file.extractedText,
+        file.uploadedBy,
+        new Date().toISOString(),
+      ).lastInsertRowid,
+  );
+}
+
+export function getAttachmentMeta(id: number): AttachmentMeta | undefined {
+  return getDb()
+    .prepare(
+      `SELECT id, transaction_id, filename, mime, byte_size, sha256, uploaded_by, uploaded_at
+         FROM attachments WHERE id = ? AND vault_id = ?`,
+    )
+    .get(id, VAULT_ID) as AttachmentMeta | undefined;
+}
+
+export function readAttachment(
+  id: number,
+): { filename: string; mime: string; content: Buffer } | undefined {
+  return getDb()
+    .prepare("SELECT filename, mime, content FROM attachments WHERE id = ? AND vault_id = ?")
+    .get(id, VAULT_ID) as { filename: string; mime: string; content: Buffer } | undefined;
+}
+
+/** Transaction ids that carry at least one receipt, for the feed's badge. */
+export function transactionIdsWithReceipts(): Set<number> {
+  const rows = getDb()
+    .prepare(
+      "SELECT DISTINCT transaction_id AS id FROM attachments WHERE vault_id = ? AND transaction_id IS NOT NULL",
+    )
+    .all(VAULT_ID) as Array<{ id: number }>;
+  return new Set(rows.map((r) => r.id));
+}
+
+export function listAttachmentsFor(transactionId: number): AttachmentMeta[] {
+  return getDb()
+    .prepare(
+      `SELECT id, transaction_id, filename, mime, byte_size, sha256, uploaded_by, uploaded_at
+         FROM attachments WHERE vault_id = ? AND transaction_id = ? ORDER BY id`,
+    )
+    .all(VAULT_ID, transactionId) as AttachmentMeta[];
+}
+
+/**
+ * Commits a receipt-derived transaction and links its file, atomically — a
+ * transaction without its evidence, or evidence with no transaction, would
+ * both undermine the point of keeping receipts at all.
+ */
+export function commitReceiptTransaction(
+  input: {
+    type: TxType;
+    amount: number;
+    description: string;
+    account: string;
+    timestamp: string;
+    reference: string | null;
+  },
+  attachmentId: number,
+  actor: string,
+): { transactionId: number; total: number } | null {
+  const db = getDb();
+
+  const pending = db
+    .prepare(
+      "SELECT id, filename FROM attachments WHERE id = ? AND vault_id = ? AND transaction_id IS NULL",
+    )
+    .get(attachmentId, VAULT_ID) as { id: number; filename: string } | undefined;
+  if (!pending) return null;
+
+  return db.transaction(() => {
+    const count = (
+      db.prepare("SELECT COUNT(*) AS n FROM transactions WHERE vault_id = ?").get(VAULT_ID) as {
+        n: number;
+      }
+    ).n;
+    const stamp = input.timestamp.slice(2, 4) + input.timestamp.slice(5, 7);
+    const reference =
+      input.reference?.trim() || `RC-${stamp}-${String(count + 1).padStart(4, "0")}`;
+
+    const transactionId = Number(
+      db
+        .prepare(
+          `INSERT INTO transactions (vault_id, reference, type, amount, description, account, timestamp, sync_status)
+           VALUES (?, ?, ?, ?, ?, ?, ?, 'VERIFIED')`,
+        )
+        .run(
+          VAULT_ID,
+          reference.slice(0, 40),
+          input.type,
+          input.amount,
+          input.description,
+          input.account,
+          input.timestamp,
+        ).lastInsertRowid,
+    );
+
+    db.prepare("UPDATE attachments SET transaction_id = ? WHERE id = ?").run(
+      transactionId,
+      attachmentId,
+    );
+
+    writeAudit({
+      actor,
+      action: "created",
+      change_description: `إرفاق إيصال «${pending.filename}» وتسجيل حركة بقيمة ${input.amount}`,
+      field: "receipt",
+      old_value: null,
+      new_value: reference,
+    });
+
+    const total = netOf(listTransactions());
+    db.prepare("UPDATE vaults SET total_funds = ? WHERE id = ?").run(total, VAULT_ID);
+
+    return { transactionId, total };
   })();
 }
 

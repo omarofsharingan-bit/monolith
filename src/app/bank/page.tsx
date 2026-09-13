@@ -16,7 +16,13 @@ import {
   formatStamp,
   maskAccount,
 } from "@/lib/format";
-import { countByStatus, getVault, listAccounts, listTransactions } from "@/lib/repo";
+import {
+  countByStatus,
+  getVault,
+  listAccounts,
+  listTransactions,
+  transactionIdsWithReceipts,
+} from "@/lib/repo";
 import { sumBy } from "@/lib/domain";
 
 export const metadata: Metadata = {
@@ -35,6 +41,7 @@ export default async function BankPage() {
   const transactions = listTransactions(40);
   const accounts = listAccounts();
   const statusCounts = countByStatus();
+  const withReceipts = transactionIdsWithReceipts();
 
   const totalIn = sumBy(transactions, "inflow");
   const totalOut = sumBy(transactions, "outflow");
@@ -152,8 +159,15 @@ export default async function BankPage() {
                         <div className="font-plex text-[0.8125rem] text-bone">
                           {tx.description}
                         </div>
-                        <div className="num mt-1 font-mono text-[0.625rem] text-dust">
-                          {tx.reference}
+                        <div className="mt-1 flex flex-wrap items-center gap-2.5">
+                          <span className="num font-mono text-[0.625rem] text-dust">
+                            {tx.reference}
+                          </span>
+                          {withReceipts.has(tx.id) && (
+                            <span className="sys border border-weld px-1.5 py-0.5 text-micro text-ash">
+                              RECEIPT
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="num px-3 py-3 font-mono text-[0.6875rem] text-ash">

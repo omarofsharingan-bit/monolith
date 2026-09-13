@@ -78,6 +78,29 @@ CREATE TABLE IF NOT EXISTS disbursements (
   timestamp TEXT NOT NULL
 );
 
+-- Receipt files kept as evidence for a transaction.
+--
+-- The bytes live in the database rather than on disk so a receipt shares the
+-- vault's lifecycle exactly: one file to back up, one file to reset, and no
+-- second story about ephemeral storage on the host. Receipts are a few hundred
+-- kilobytes, which SQLite handles without complaint.
+--
+-- transaction_id NULL means uploaded but not yet confirmed; those are pruned.
+CREATE TABLE IF NOT EXISTS attachments (
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  vault_id       INTEGER NOT NULL REFERENCES vaults(id) ON DELETE CASCADE,
+  transaction_id INTEGER REFERENCES transactions(id) ON DELETE CASCADE,
+  filename       TEXT NOT NULL,
+  mime           TEXT NOT NULL,
+  byte_size      INTEGER NOT NULL,
+  sha256         TEXT NOT NULL,
+  content        BLOB NOT NULL,
+  extracted_text TEXT,
+  uploaded_by    TEXT NOT NULL,
+  uploaded_at    TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_attach_tx      ON attachments (transaction_id);
 CREATE INDEX IF NOT EXISTS idx_tx_vault_time    ON transactions (vault_id, timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_audit_vault_time ON audit_log (vault_id, timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_stake_vault      ON stakeholders (vault_id);

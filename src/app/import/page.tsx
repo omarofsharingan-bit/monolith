@@ -7,11 +7,11 @@ import Link from "next/link";
 
 import { Panel } from "@/components/ui/Panel";
 import { StatusPill } from "@/components/ui/StatusPill";
-import { ImportPanel } from "@/components/ImportPanel";
+import { ImportTabs } from "@/components/ImportTabs";
 import { ROLE_LABEL } from "@/lib/roles";
 import { CSV_TEMPLATE } from "@/lib/import";
 import { formatNumber } from "@/lib/format";
-import { getVault } from "@/lib/repo";
+import { getVault, listAttachmentsFor, type AttachmentMeta } from "@/lib/repo";
 
 export const metadata: Metadata = {
   title: `${dict.import.title} — ${dict.app.name}`,
@@ -91,10 +91,67 @@ function ImportSuccess({ inserted, replaced }: { inserted: number; replaced: num
   );
 }
 
+/** Confirmation after a receipt is filed, with a link straight to the file. */
+function ReceiptSuccess({ receipts }: { receipts: AttachmentMeta[] }) {
+  return (
+    <Panel sys="RECEIPT FILED" title={dict.receipt.successTitle}>
+      <div className="flex flex-wrap items-center gap-4">
+        <StatusPill status="VERIFIED" />
+        <p className="font-plex text-[0.8125rem] leading-relaxed text-ash">
+          {dict.receipt.successBody}
+        </p>
+      </div>
+
+      {receipts.length > 0 && (
+        <ul className="mt-5 border-t border-hair pt-4">
+          {receipts.map((r) => (
+            <li
+              key={r.id}
+              className="flex flex-wrap items-center justify-between gap-4 border-b border-hair py-3 last:border-b-0"
+            >
+              <div className="min-w-0">
+                <div className="num font-mono text-[0.75rem] text-bone">{r.filename}</div>
+                <div className="num mt-1 font-mono text-[0.625rem] text-dust">
+                  {formatNumber(Math.max(1, Math.round(r.byte_size / 1024)))} KB
+                  {" · SHA-256 "}
+                  {r.sha256.slice(0, 12)}
+                </div>
+              </div>
+              <a
+                href={`/api/receipts/${r.id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="shrink-0 border border-weld px-3 py-1.5 font-plex text-[0.6875rem] text-bone transition-colors duration-100 ease-mech hover:border-bone hover:bg-bone hover:text-void"
+              >
+                {dict.receipt.viewReceipt}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        <Link
+          href="/import"
+          className="inline-flex items-center border border-weld px-4 py-2.5 font-plex text-xs font-semibold text-bone transition-colors duration-100 ease-mech hover:border-bone hover:bg-bone hover:text-void"
+        >
+          {dict.import.importAnother}
+        </Link>
+        <Link
+          href="/bank"
+          className="inline-flex items-center border border-transparent px-4 py-2.5 font-plex text-xs text-ash transition-colors duration-100 ease-mech hover:border-hair hover:text-bone"
+        >
+          {dict.nav.bank}
+        </Link>
+      </div>
+    </Panel>
+  );
+}
+
 export default async function ImportPage({
   searchParams,
 }: {
-  searchParams: { imported?: string; replaced?: string };
+  searchParams: { imported?: string; replaced?: string; receipt?: string };
 }) {
   const session = await auth();
   const vault = getVault();
@@ -102,6 +159,10 @@ export default async function ImportPage({
   const inserted = Number(searchParams.imported);
   const replaced = Number(searchParams.replaced);
   const justImported = Number.isInteger(inserted) && inserted > 0;
+
+  const receiptTx = Number(searchParams.receipt);
+  const justAttached = Number.isInteger(receiptTx) && receiptTx > 0;
+  const receipts = justAttached ? listAttachmentsFor(receiptTx) : [];
 
   return (
     <Shell
@@ -118,8 +179,10 @@ export default async function ImportPage({
               inserted={inserted}
               replaced={Number.isInteger(replaced) ? replaced : 0}
             />
+          ) : justAttached ? (
+            <ReceiptSuccess receipts={receipts} />
           ) : (
-            <ImportPanel />
+            <ImportTabs />
           )}
         </div>
 

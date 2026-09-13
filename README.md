@@ -17,6 +17,7 @@ digits (0–9) with SAR.
 | Data       | SQLite via `better-sqlite3`, raw SQL (no ORM)                     |
 | Auth       | NextAuth / Auth.js v5, credentials provider, JWT sessions         |
 | Charts     | Recharts                                                          |
+| PDF        | `unpdf` for receipt text extraction (pure JS, no native deps)     |
 | Deploy     | Render (`render.yaml` included)                                   |
 
 ---
@@ -82,7 +83,7 @@ be sanity-checked before committing.
 | `/ledger` | **Equity ledger** — stakeholder CRUD, split validation, disbursement, audit chain |
 | `/bank`   | **Simulated bank sync** — mock transaction feed with a live polling pipeline    |
 | `/burn`   | **Burn rate** — balance history against a linear trend projection              |
-| `/import` | **Data import** — replace the demo data with real transactions from a CSV or JSON file |
+| `/import` | **Data import** — a CSV/JSON statement, or a single bank transfer receipt (PDF) filed as evidence |
 
 ### Telling people what to do
 
@@ -154,7 +155,7 @@ new file rather than a rewrite.
 
 ---
 
-## The four subsystems
+## The five subsystems
 
 ### 1. Equity / fund split ledger
 
@@ -212,6 +213,39 @@ The confirmation is carried in the URL (`/import?imported=3`) rather than in for
 because the action revalidates other routes and that remounts this route's client tree —
 anything held in `useFormState` would be gone before it rendered.
 
+### 6. Bank transfer receipts
+
+The second tab on `/import` takes a single transfer receipt — a PDF from a banking app,
+or a photo of one — and does two things with it: reads what it can, and **keeps the file**.
+
+**Reading.** `src/lib/receipt.ts` extracts amount, date, description and reference from
+the PDF's text. It is pure, so it is testable without a PDF or a database. The heuristics
+score candidate figures by proximity to currency markers and amount words rather than
+grabbing the first number, normalise Arabic-Indic digits (`١٬٤٥٠٫٠٠` → `1450`), read
+`dd/mm/yyyy` day-first per Saudi convention, and infer direction from wording.
+
+None of it is presented as fact. Every field is an editable draft labelled either
+**قُرئ من الملف** or **لم يُقرأ — أدخله يدويًا**, and the text the parser actually saw is
+shown underneath so the operator can check it against the original. A scanned receipt has
+no text layer and this build does not OCR — it says so and falls back to manual entry,
+still keeping the file.
+
+**Keeping.** The file is stored as a BLOB in the `attachments` table, not on disk, so a
+receipt shares the vault's lifecycle exactly: one file to back up, one to reset, and no
+second story about ephemeral hosting. Each row records a SHA-256 of the bytes. Files are
+served from `/api/receipts/[id]` to signed-in members only, `private, no-store`.
+
+The upload is stored unlinked first and attached when the draft is confirmed, both in one
+transaction — a transaction without its evidence, or evidence with no transaction, would
+each defeat the point. Uploads abandoned before confirmation are pruned after an hour.
+
+Two consequences worth knowing:
+
+- Transactions carrying a receipt are **exempt from the import's "replace existing"**
+  delete. Wiping them would take the evidence with them through the cascade, and an
+  import checkbox should not be able to destroy a filed document.
+- Rows with a receipt show a `RECEIPT` badge in the bank feed.
+
 ### 4. Burn rate forecast
 
 Ordinary least-squares fit of end-of-month balance against month index, using **completed
@@ -258,6 +292,9 @@ transactions    id, vault_id → vaults, reference, type, amount, description,
 audit_log       id, vault_id → vaults, actor, action, change_description,
                 field, old_value, new_value, timestamp
 disbursements   id, vault_id → vaults, amount, note, actor, timestamp
+attachments     id, vault_id → vaults, transaction_id → transactions,
+                filename, mime, byte_size, sha256, content (BLOB),
+                extracted_text, uploaded_by, uploaded_at
 ```
 
 Schema and seeding live in `src/lib/db.ts`; `CHECK` constraints enforce the enums
